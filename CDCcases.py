@@ -62,8 +62,10 @@ def calcCasesByVariant():
     finalTable = [['Dates', '# of Delta', '# of Omicron', '# of Total Cases']]
     
     
-    # x = i1/ (i1 + i2)
-    # y = i2/ (i1 + i2)
+    # x = i1/ (i1 + i2 + i3)
+    # y = i2/ (i1 + i2 + i3)
+    # z = i3/ (i1 + i2 + i3)
+    
     x = []
     y = []
     z = []
