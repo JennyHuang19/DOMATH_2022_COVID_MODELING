@@ -61,21 +61,23 @@ us_cov_groupvars[is.na(us_cov_groupvars)]=0
 
 us_cov_groupvars<-us_cov_groupvars%>%
   mutate(deltas=variant_21i_delta+variant_21j_delta,
-         omicrons= (variant_21k_omicron+ variant_21l_omicron+ 
-                      variant_22a_omicron+ variant_22b_omicron+
+         omicrons= (variant_21k_omicron+ variant_21l_omicron),
+         ba45=(variant_22a_omicron+ variant_22b_omicron+
                       variant_22c_omicron))%>% 
-  #Group the omicron and delta variants
+  #Group the omicron and delta ba45 variants
   
-  select(total_sequences, week, state, deltas, omicrons)%>%
+  select(total_sequences, week, state, deltas, omicrons, ba45)%>%
   arrange(week)%>%
   group_by(week)%>%
   summarise(total_sequences=sum(total_sequences),
             deltas=sum(deltas),
-            omicrons=sum(omicrons))%>%
+            omicrons=sum(omicrons),
+            ba45=sum(ba45))%>%
   #Combine all 50 states each week 
   
   mutate(perc_deltas=deltas/total_sequences,
-         perc_omicrons=omicrons/total_sequences)%>%
+         perc_omicrons=omicrons/total_sequences,
+         perc_ba45=ba45/total_sequences)%>%
   #Getting proportions
   
   slice(18:53) 
