@@ -1,0 +1,86 @@
+---
+title: "CovidProject"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r working}
+# This is code I found from an online GitHub repo
+library(tidyverse)
+library(jsonlite)
+library(janitor)
+library(data.table)
+
+df.all <- jsonlite::fromJSON("https://raw.githubusercontent.com/hodcroftlab/covariants/master/web/data/perCountryData.json", flatten=T)
+### pul names
+nmz<-df.all$regions$distributions[[2]][,1]
+### pull data and add name
+df <- lapply(1:length(nmz), 
+             function(x) df.all$regions$distributions[[2]][x,]$distribution[[1]])
+names(df) <- nmz
+
+### get n dates for each state since they are different
+ndates <- sapply(1:length(nmz), function(x) nrow(df[[x]]))
+### create single DF from list above
+df <- data.table::rbindlist(df, fill=T)
+### add state as column 
+df$state <- rep(nmz, times=ndates)
+
+### clean names
+names(df) <- sub("cluster.counts.", "variant_", names(df))
+
+df %>%
+  janitor::clean_names() -> df
+
+
+
+grep("*omicron*", names(df))
+state_names<-state.name
+  
+```
+
+```{r}
+
+us_cov_groupvars<-df%>%
+  filter(state != "USA"& state != "Virgin Islands"&state!="Puerto Rico"&
+           state != "Northern Mariana Islands"&
+           state!="Guam"&state!="American Samoa")%>%
+  #Only want to have the 50 US states, excluding USA because it doesn't count 
+  #right and so  i need to just add all 50 states to have an accurate count
+  select(total_sequences, week, state, variant_21i_delta, variant_21j_delta,
+         variant_21k_omicron, variant_21l_omicron,variant_22a_omicron,
+         variant_22b_omicron, variant_22c_omicron)
+#chose the variants we want to work with
+
+us_cov_groupvars[is.na(us_cov_groupvars)]=0 
+#make na = 0 early. assuming that an NA value in the data means 0 were collected
+# or they haven't started counting that variant yet
+
+us_cov_groupvars<-us_cov_groupvars%>%
+  mutate(deltas=variant_21i_delta+variant_21j_delta,
+         omicrons= (variant_21k_omicron+ variant_21l_omicron+ 
+                      variant_22a_omicron+ variant_22b_omicron+
+                      variant_22c_omicron))%>% 
+  #Group the omicron and delta variants
+  
+  select(total_sequences, week, state, deltas, omicrons)%>%
+  arrange(week)%>%
+  group_by(week)%>%
+  summarise(total_sequences=sum(total_sequences),
+            deltas=sum(deltas),
+            omicrons=sum(omicrons))%>%
+  #Combine all 50 states each week 
+  
+  mutate(perc_deltas=deltas/total_sequences,
+         perc_omicrons=omicrons/total_sequences)%>%
+  #Getting proportions
+  
+  slice(18:53) 
+#relevant weeks where it isn't all zero. June wanted to start from week 19
+
+  
+write.csv(us_cov_groupvars,"~/Downloads/CovidProps.csv", row.names = FALSE)
+```
