@@ -112,6 +112,7 @@ def transition(S, I_1, I_2, R_1, R, beta_1, beta_2, gamma, theta):
     rList.append(r)
     
     # incorporate ODE's and track changes in lists above
+    # run 199 iterations so that final lists are length 200, can be changed in future
     for i in range(199):
         # ODE's
         ds = -s*( beta_1*i_1 + beta_2*i_2 )
