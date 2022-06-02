@@ -126,7 +126,58 @@ def calcCasesByVariant():
     plt.savefig('varPercNC.png', bbox_inches='tight')
     plt.close('all')
     
+    # can we assume s(t) and r_0(t) constant?
+    # transformed B.1.1.529 from 12/11/21 to 01/08/22
+    # transformed BA.1.1 from 01/08/22 to 03/05/22
+    # transformed BA.2 from 02/19/22 to 04/23/22
+    tranB11529 = []
+    tranBA11 = []
+    tranBA2 = []
     
+    for i in range(5):
+        x = B11529[23 + i,0]
+        y = math.log((x)/(1-x)) + 10
+        tranB11529.append(y)
+   
+    for i in range(9):
+        x = BA11[27 + i, 0]
+        y = math.log((x)/(1-x)) + 10
+        tranBA11.append(y)
+        
+    for i in range(10):
+        x = BA2[33 + i,0]
+        y = math.log((x)/(1-x)) + 10
+        tranBA2.append(y)
+        
+    plt.figure()
+    fig, ax = plt.subplots()
+    ax.plot(tranB11529, label='B.1.1.529')
+    ax.legend(loc='upper left')
+    plt.title('B.1.1.529 Logistic Transformation')
+    plt.xlabel('Time (Weekly)')
+    plt.ylabel('F(t)')       
+    plt.savefig('logB.1.1.529.png', bbox_inches='tight')
+    plt.close('all')
+    
+    plt.figure()
+    fig, ax = plt.subplots()
+    ax.plot(tranBA11, label='BA.1.1')
+    ax.legend(loc='upper left')
+    plt.title('BA.1.1 Logistic Transformation')
+    plt.xlabel('Time (Weekly)')
+    plt.ylabel('F(t)')       
+    plt.savefig('logBA.1.1.png', bbox_inches='tight')
+    plt.close('all')
+    
+    plt.figure()
+    fig, ax = plt.subplots()
+    ax.plot(tranBA2, label='BA.2')
+    ax.legend(loc='upper left')
+    plt.title('BA.2 Logistic Transformation')
+    plt.xlabel('Time (Weekly)')
+    plt.ylabel('F(t)')       
+    plt.savefig('logBA.2.png', bbox_inches='tight')
+    plt.close('all')
    
     return
     
