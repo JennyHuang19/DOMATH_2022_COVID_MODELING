@@ -48,30 +48,33 @@ def BRW(N, beta, gamma, a, t):
                     else:
                         nextGen[x + newLoc] += 1
                     
-            
-                    
-        currGen = nextGen
+    currGen = nextGen
     
-    print(f'left = {left}')
-    print(f'right = {right}')
-    return (currGen)
+    return(currGen)
 
 
 if __name__ == '__main__':
     N = 100
     beta = 4
     gamma = 1
-    a = 1/2
+    a = 0.1
     t = 15
-    currGen = BRW(N, beta, gamma, a, t)
+    numTrials = 100
+    
+    total = [0 for i in range(N+1)]
+    for i in range(numTrials):
+        currGen = BRW(N, beta, gamma, a, t)
+        for j in range(len(currGen)):
+            total[j] += currGen[j]
+    
     
     x = [i for i in range(-N//2, N//2 + 1)]
     
     plt.figure()
     fig, ax = plt.subplots()
-    plt.bar(x, currGen)
-    plt.title('BRW')
+    plt.bar(x, total)
+    plt.title(f'BRW, Alpha = {a}')
     plt.xlabel('Location')
     plt.ylabel('# of Particles')       
-    plt.savefig('BRW.png', bbox_inches='tight')
+    plt.savefig(f'BRW_alpha{a}.png', bbox_inches='tight')
     plt.close('all')
