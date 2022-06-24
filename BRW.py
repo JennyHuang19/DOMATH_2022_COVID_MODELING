@@ -8,12 +8,13 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 
-def BRW(N, m, beta, gamma, a, t):
+def BRW(N, beta, gamma, a, t):
     #initial list of particles
     currGen = [0 for i in range(N+1)]
     #placeholder while updating
     
-    
+    left = 0
+    right = 0
     #initial particle
     currGen[N//2 + 1] = 1
     
@@ -21,53 +22,56 @@ def BRW(N, m, beta, gamma, a, t):
     for t in range(t):
         nextGen = [0 for i in range(N+1)]
         # for each location
-        for x in range(len(currGen)):
+        for x in range(N+1):
             # for each particle at given location
             births = np.random.binomial(currGen[x], beta/(beta + gamma)) # num births at site x
             nextGen[x] += births
-            if births == 0:
-                break
             
             newLocs = pareto.rvs(a, size=births)
     
-            for i in newLocs:
-                newLocs[i] = math.ceil(newLocs[i])
-                leftright = random.randit(0,1)
+            for i in range(len(newLocs)):
+                newLoc = round(newLocs[i])
+                leftright = random.randint(0,1)
+                
                 if leftright == 0:
-                    if x - newLocs[i] < 0:
-                        tempX = -(x - newLocs[i]) % N
-                        nextGen[tempX] += 1
+                    left += 1
+                    if x - newLoc < 0:
+                        tempX = -(x - newLoc) % N
+                        nextGen[-tempX] += 1
                     else:
-                        nextGen[x - newLocs[i]] += 1
+                        nextGen[x - newLoc] += 1
                 else:
-                    if x + newLocs[i] > N:
-                        tempX = (x + newLocs[i]) % N
+                    right += 1
+                    if x + newLoc > N:
+                        tempX = (x + newLoc) % N
                         nextGen[tempX] += 1
                     else:
-                        nextGen[x + newLocs[i]] += 1
+                        nextGen[x + newLoc] += 1
                     
             
                     
         currGen = nextGen
     
+    print(f'left = {left}')
+    print(f'right = {right}')
     return (currGen)
 
 
 if __name__ == '__main__':
     N = 100
-    m = 5
-    beta = 6
+    beta = 4
     gamma = 1
     a = 1/2
-    t = 10
-    currGen = BRW(N, m, beta, gamma, a, t)
+    t = 15
+    currGen = BRW(N, beta, gamma, a, t)
+    
+    x = [i for i in range(-N//2, N//2 + 1)]
     
     plt.figure()
     fig, ax = plt.subplots()
-    ax.plot(currGen, label='# of particles')
-    ax.legend(loc='upper right')
+    plt.bar(x, currGen)
     plt.title('BRW')
     plt.xlabel('Location')
-    plt.ylabel('# of particles at Location')       
+    plt.ylabel('# of Particles')       
     plt.savefig('BRW.png', bbox_inches='tight')
     plt.close('all')
